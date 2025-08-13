@@ -1,7 +1,5 @@
 Foodieland Project's FrontEnd (Ostad Pro Batch-2, Team-6)
 
-//*Try to Keep the Project Structure like this one. We will modify this after completing the full Project*//
-
 FoodieLand_FrontEnd/
 │
 ├── public/                     # Static files like favicon, index.html
