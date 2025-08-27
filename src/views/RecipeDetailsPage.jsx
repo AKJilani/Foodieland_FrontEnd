@@ -54,26 +54,34 @@ export default function RecipeDetailsPage() {
 					</div>
 				</div>
 				{Array.isArray(r.ingredients) && (
-					<div className="mt-6">
-						<h3 className="font-semibold mb-2">Ingredients</h3>
+					<div className="mt-10 bg-gray-50 p-6 rounded-xl shadow-sm">
+						<h3 className="font-semibold text-lg mb-3">🛒 Ingredients</h3>
 						<ul className="list-disc pl-5 space-y-1 text-gray-700">
-							{r.ingredients.map((it, idx)=>(<li key={idx}>{it}</li>))}
+							{r.ingredients.map((it, idx) => (
+								<li key={idx}>{it}</li>
+							))}
 						</ul>
 					</div>
 				)}
+
 				{Array.isArray(r.preparation_steps) && (
-					<div className="mt-6">
-						<h3 className="font-semibold mb-2">Preparation</h3>
+					<div className="mt-10 bg-gray-50 p-6 rounded-xl shadow-sm">
+						<h3 className="font-semibold text-lg mb-3">👩‍🍳 Preparation</h3>
 						<ol className="list-decimal pl-5 space-y-2 text-gray-700">
-							{r.preparation_steps.map((st, idx)=>(<li key={idx}>{st}</li>))}
+							{r.preparation_steps.map((st, idx) => (
+								<li key={idx}>{st}</li>
+							))}
 						</ol>
 					</div>
 				)}
 			</section>
 			<section className="max-w-6xl mx-auto px-4 py-12">
-				<h3 className="text-xl font-semibold mb-6">You may also like</h3>
-				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-					{related?.results?.slice(0,4)?.map(r => (<RecipeCard key={r.id} {...r} />))}
+				<h3 className="text-xl font-semibold mb-6">🍲 You may also like</h3>
+				<div className="flex gap-4 overflow-x-auto pb-2">
+					{related?.results?.slice(0, 6)?.map(r => (<div key={r.id} className="w-60 flex-shrink-0">
+						<RecipeCard key={r.id} {...r} />
+						</div>
+					))}
 				</div>
 			</section>
 		</>
