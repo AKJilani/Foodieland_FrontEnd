@@ -1,9 +1,11 @@
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { getRecipe, listMyFavorites, addFavorite, removeFavorite, listMyRatings, createRating, updateRating, listRecipes } from '../api/recipes'
+import { 
+	getRecipe, listMyFavorites, addFavorite, removeFavorite, 
+	listMyRatings, createRating, updateRating, listRecipes 
+} from '../api/recipes'
 import { useState, useEffect } from 'react'
 import RecipeCard from '../components/RecipeCard'
-import { useQueryClient } from '@tanstack/react-query'
 
 export default function RecipeDetailsPage() {
 	const { id } = useParams()
@@ -15,18 +17,23 @@ export default function RecipeDetailsPage() {
 
 	useEffect(()=>{
 		listMyFavorites().then(d=>{
-			const f = (d?.results||[]).find(x=>x.recipe===id)
+			const f = (d?.results||[]).find(x=>String(x.recipe)===String(id))
 			setFavoriteId(f?.id||null)
 		}).catch(()=>{})
 		listMyRatings().then(d=>{
-			const rate = (d?.results||[]).find(x=>x.recipe===id)
+			const rate = (d?.results||[]).find(x=>String(x.recipe)===String(id))
 			setMyRating(rate||null)
 		}).catch(()=>{})
 	},[id])
 
 	async function toggleFavorite(){
-		if(favoriteId){ await removeFavorite(favoriteId); setFavoriteId(null) }
-		else { const f = await addFavorite({ recipe: id }); setFavoriteId(f.id) }
+		if(favoriteId){ 
+			await removeFavorite(favoriteId)
+			setFavoriteId(null) 
+		} else { 
+			const f = await addFavorite({ recipe: id })
+			setFavoriteId(f.id) 
+		}
 	}
 
 	async function handleRate(value){
@@ -38,24 +45,88 @@ export default function RecipeDetailsPage() {
 			setMyRating(created)
 		}
 	}
+
 	return (
 		<>
-			<section className="max-w-3xl mx-auto px-4 py-12">
-				{r.image && <img src={r.image} alt={r.title} className="w-full h-64 object-cover rounded" />}
-				<h1 className="text-3xl font-bold mt-6">{r.title || '...'}</h1>
-				<div className="text-sm text-gray-600 mt-1">by {r.author_name || 'Unknown'} · {Number(r.average_rating||0).toFixed(1)}★</div>
-				<div className="mt-4 flex items-center gap-3">
-					<button onClick={toggleFavorite} className={`px-3 py-1 rounded border ${favoriteId? 'bg-gray-900 text-white':''}`}>{favoriteId? 'Favorited' : 'Add to Favorites'}</button>
-					<div className="flex items-center gap-1">
-						{[1,2,3,4,5].map(v => (
-							<button key={v} onClick={()=>handleRate(v)} className={`text-xl ${v <= (myRating?.rating||0) ? 'text-yellow-500' : 'text-gray-300'}`}>★</button>
-						))}
-						<span className="text-sm text-gray-600 ml-2">Your rating</span>
+			{/* Recipe Hero Section */}
+			<section className="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-4">
+				<div className="bg-white rounded-2xl shadow-md overflow-hidden">
+					{r.image && (
+						<img 
+							src={r.image} 
+							alt={r.title} 
+							className="w-full h-80 object-cover"
+						/>
+					)}
+
+					<div className="p-6">
+						<h1 className="text-4xl font-bold text-gray-800">{r.title || '...'}</h1>
+						<div className="mt-2 flex items-center gap-3 text-gray-600 text-sm">
+							<span>👨‍🍳 {r.author_name || 'Unknown'}</span>
+							<span>·</span>
+							<span>{Number(r.average_rating||0).toFixed(1)} ★</span>
+						</div>
+
+						{/* Favorites + Rating */}
+						<div className="mt-5 flex flex-wrap items-center gap-4">
+							<button 
+								onClick={toggleFavorite} 
+								className={`px-4 py-2 rounded-lg border transition ${
+									favoriteId 
+									? 'bg-red-500 text-white border-red-500' 
+									: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+								}`}
+							>
+								{favoriteId ? '❤️ Favorited' : '🤍 Add to Favorites'}
+							</button>
+
+							<div className="flex items-center gap-1">
+								{[1,2,3,4,5].map(v => (
+									<button 
+										key={v} 
+										onClick={()=>handleRate(v)} 
+										className={`text-2xl transition ${
+											v <= (myRating?.rating||0) ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'
+										}`}
+									>
+										★
+									</button>
+								))}
+								<span className="ml-2 text-sm text-gray-600">Your rating</span>
+							</div>
+						</div>
 					</div>
 				</div>
+				<div className="bg-cyan-200 shadow-md rounded-2xl p-6 overflow-hidden">
+					<h1 className="text-2xl flex items-center justify-center">Nutritional Information</h1>
+					{r.nutritional_info ? (
+						<div className="mt-4 grid grid-cols-2 gap-4">
+							{Object.entries(r.nutritional_info).map(([key, value])=>(
+								<div key={key} className="bg-white rounded-lg p-4 text-center shadow">
+									<h2 className="text-lg font-semibold text-gray-700">{key.replace(/_/g, ' ')}</h2>
+									<p className="mt-2 text-2xl font-bold text-indigo-600">{value}</p>
+								</div>
+							))}
+						</div>
+					) : (
+						<p className="mt-4 text-center text-gray-600">No nutritional information available.</p>
+					)}
+				</div>
+			</section>
+
+			{/* Description */}
+			<section className="max-w-6xl mx-auto px-4 grid gap-6">
+				<div className="bg-white rounded-2xl shadow-md p-6">
+					<h3 className="text-xl font-semibold mb-4">📖 Description</h3>
+					<p className="text-lg">{r.description || 'No description available.'}</p>
+				</div>
+			</section>
+
+			{/* Ingredients + Preparation */}
+			<section className="max-w-6xl mx-auto px-4 grid gap-8 mt-8">
 				{Array.isArray(r.ingredients) && (
-					<div className="mt-10 bg-gray-50 p-6 rounded-xl shadow-sm">
-						<h3 className="font-semibold text-lg mb-3">🛒 Ingredients</h3>
+					<div className="bg-white rounded-2xl shadow-md p-6">
+						<h3 className="text-xl font-semibold mb-4">🛒 Ingredients</h3>
 						<ul className="list-disc pl-5 space-y-1 text-gray-700">
 							{r.ingredients.map((it, idx) => (
 								<li key={idx}>{it}</li>
@@ -63,10 +134,11 @@ export default function RecipeDetailsPage() {
 						</ul>
 					</div>
 				)}
-
+			</section>
+			<section className="max-w-6xl mx-auto px-4 grid gap-8 mt-8">
 				{Array.isArray(r.preparation_steps) && (
-					<div className="mt-10 bg-gray-50 p-6 rounded-xl shadow-sm">
-						<h3 className="font-semibold text-lg mb-3">👩‍🍳 Preparation</h3>
+					<div className="bg-white rounded-2xl shadow-md p-6">
+						<h3 className="text-xl font-semibold mb-4">👩‍🍳 Preparation</h3>
 						<ol className="list-decimal pl-5 space-y-2 text-gray-700">
 							{r.preparation_steps.map((st, idx) => (
 								<li key={idx}>{st}</li>
@@ -75,11 +147,14 @@ export default function RecipeDetailsPage() {
 					</div>
 				)}
 			</section>
+
+			{/* Related Recipes */}
 			<section className="max-w-6xl mx-auto px-4 py-12">
-				<h3 className="text-xl font-semibold mb-6">🍲 You may also like</h3>
-				<div className="flex gap-4 overflow-x-auto pb-2">
-					{related?.results?.slice(0, 6)?.map(r => (<div key={r.id} className="w-60 flex-shrink-0">
-						<RecipeCard key={r.id} {...r} />
+				<h3 className="text-2xl font-bold mb-6">🍲 You may also like</h3>
+				<div className="flex gap-6 overflow-x-auto pb-2">
+					{related?.results?.slice(0, 6)?.map(r => (
+						<div key={r.id} className="w-64 flex-shrink-0">
+							<RecipeCard key={r.id} {...r} />
 						</div>
 					))}
 				</div>
@@ -87,5 +162,6 @@ export default function RecipeDetailsPage() {
 		</>
 	)
 }
+
 
 
