@@ -40,6 +40,36 @@ export default function ProfilePage() {
 					</div>
 				</div>
 			</section>
+			<div>
+				Messaging System
+			</div>
+						<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>			<div>
+				Messaging System
+			</div>
 		</>
 	)
 }

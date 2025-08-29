@@ -7,12 +7,12 @@ export async function listBlogCategories() {
 
 export async function listBlogs(params = {}) {
 	const { page = 1, search = '', ordering = '-created_at' } = params
-	const { data } = await api.get('/blogs/', { params: { page, search, ordering } })
+	const { data } = await api.get('/blogs/blogs/', { params: { page, search, ordering } })
 	return data
 }
 
 export async function getBlog(id) {
-	const { data } = await api.get(`/blogs/${id}/`)
+	const { data } = await api.get(`/blogs/blogs/${id}/`)
 	return data
 }
 
@@ -37,7 +37,7 @@ export async function updateBlog(id, payload) {
 }
 
 export async function deleteBlog(id) {
-	await api.delete(`/blogs/${id}/`)
+	await api.delete(`/blogs/blogs/${id}/`)
 	return { ok: true }
 }
 
