@@ -97,21 +97,51 @@ export default function RecipeDetailsPage() {
 						</div>
 					</div>
 				</div>
-				<div className="bg-cyan-200 shadow-md rounded-2xl p-6 overflow-hidden">
-					<h1 className="text-2xl flex items-center justify-center">Nutritional Information</h1>
-					{r.nutritional_info ? (
-						<div className="mt-4 grid grid-cols-2 gap-4">
-							{Object.entries(r.nutritional_info).map(([key, value])=>(
-								<div key={key} className="bg-white rounded-lg p-4 text-center shadow">
-									<h2 className="text-lg font-semibold text-gray-700">{key.replace(/_/g, ' ')}</h2>
-									<p className="mt-2 text-2xl font-bold text-indigo-600">{value}</p>
-								</div>
-							))}
+				{/* Nutritional Information */}
+				<div className="bg-gradient-to-r from-cyan-100 to-cyan-200 shadow-lg rounded-2xl p-6 xl:p-8">
+					<h4 className="font-bold text-2xl text-gray-800 mb-16 flex items-center gap-4">🥗 Nutritional Information</h4>
+					{r.nutrition_info ? (
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+							<div className="bg-cyan-100 rounded-xl shadow p-4 flex flex-col items-center">
+								<span className="text-2xl">🔥</span>
+								<span className="text-xs font-semibold text-gray-700">Calories</span>
+								<span className="text-gray-600">{r.nutrition_info.calories} kcal</span>
+							</div>
+							<div className="bg-cyan-100 rounded-xl shadow p-4 flex flex-col items-center">
+								<span className="text-2xl">🥔</span>
+								<span className="text-xs font-semibold text-gray-700">Carbohydrates</span>
+								<span className="text-gray-600">{r.nutrition_info.carbohydrates} g</span>
+							</div>
+							<div className="bg-cyan-100 rounded-xl shadow p-4 flex flex-col items-center">
+								<span className="text-2xl">🩸</span>
+								<span className="text-xs font-semibold text-gray-700">Cholesterol</span>
+								<span className="text-gray-600">{r.nutrition_info.cholesterol} mg</span>
+							</div>
+							<div className="bg-cyan-100 rounded-xl shadow p-4 flex flex-col items-center">
+								<span className="text-2xl">🥩</span>
+								<span className="text-xs font-semibold text-gray-700">Protein</span>
+								<span className="text-gray-600">{r.nutrition_info.protein} g</span>
+							</div>
+							<div className="bg-cyan-100 rounded-xl shadow p-4 flex flex-col items-center">
+								<span className="text-2xl">🥑</span>
+								<span className="text-xs font-semibold text-gray-700">Fat</span>
+								<span className="text-gray-600">{r.nutrition_info.fat} g</span>
+							</div>
+							<div className="bg-cyan-100 rounded-xl shadow p-4 flex flex-col items-center">
+								<span className="text-2xl">🥬</span>
+								<span className="text-xs font-semibold text-gray-700">Fiber</span>
+								<span className="text-gray-600">{r.nutrition_info.fiber} g</span>
+							</div>
+							<p className="text-xs col-start-1 col-end-4 items-center text-center text-gray-500 mt-4">
+								(Note: Nutritional values are approximate and may vary based on ingredients and preparation methods.)
+							</p>
 						</div>
-					) : (
+					) 
+					: (
 						<p className="mt-4 text-center text-gray-600">No nutritional information available.</p>
 					)}
 				</div>
+			
 			</section>
 
 			{/* Description */}

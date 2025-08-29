@@ -9,6 +9,14 @@ export default function RecipeFormPage({ mode }) {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [nutritionInfo, setNutritionInfo] = useState({
+    calories: '',
+    carbohydrates: '',
+    cholesterol: '',
+    protein: '',
+    fat: '',
+    fiber: '',
+  })
   const [image, setImage] = useState('')
   const [ingredients, setIngredients] = useState('')
   const [steps, setSteps] = useState('')
@@ -21,6 +29,14 @@ export default function RecipeFormPage({ mode }) {
       getRecipe(id).then(r => {
         setTitle(r.title || '')
         setDescription(r.description || '')
+        setNutritionInfo(r.nutrition_info || {
+          calories: '',
+          carbohydrates: '',
+          cholesterol: '',
+          protein: '',
+          fat: '',
+          fiber: ''
+        })
         setImage(r.image || '')
         setIngredients(Array.isArray(r.ingredients) ? r.ingredients.join('\n') : '')
         setSteps(Array.isArray(r.preparation_steps) ? r.preparation_steps.join('\n') : '')
@@ -34,6 +50,7 @@ export default function RecipeFormPage({ mode }) {
     const payload = {
       title,
       description,
+      nutrition_info: nutritionInfo,
       image,
       ingredients: ingredients.split('\n').filter(Boolean),
       preparation_steps: steps.split('\n').filter(Boolean),
@@ -101,6 +118,37 @@ export default function RecipeFormPage({ mode }) {
               value={description}
               onChange={e => setDescription(e.target.value)}
             />
+          </div>
+
+          {/* Nutritional Information */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Nutritional Information
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                {key:'calories', label: 'Calories', unit:'kcal'},
+                {key:'carbohydrates', label: 'Carbohydrates', unit:'g'},
+                {key:'cholesterol', label: 'Cholesterol', unit:'mg'},
+                {key:'protein', label: 'Protein', unit:'g'},
+                {key:'fat', label: 'Fat', unit:'g'},
+                {key:'fiber', label: 'Fiber', unit:'g'}
+              ].map(({key, label, unit}) => (
+                <div key={key} className="flex items-center border rounded-lg px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full outline-none"
+                    placeholder={label}
+                    value={nutritionInfo[key]}
+                    onChange={e => 
+                      setNutritionInfo({ ...nutritionInfo, [key]: e.target.value })
+                    }
+                  />
+                  <span className="ml-2 text-gray-500">{unit}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div>
