@@ -2,76 +2,35 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { BsArrowRight, BsArrowLeft } from 'react-icons/bs';
+import { LuClock, LuChefHat } from 'react-icons/lu';
+import { FaUserCircle } from "react-icons/fa";
 
 export default function Hero({ featuredRecipes = [] }) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
     useEffect(() => {
-        if (!isAutoPlaying) return;
-        
+        if (!isAutoPlaying || featuredRecipes.length === 0) return;
         const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % featuredRecipes.length);
-        }, 5000);
-        
+            setCurrentSlide(prev => (prev + 1) % featuredRecipes.length);
+        }, 5000); // 10-second interval
         return () => clearInterval(timer);
     }, [isAutoPlaying, featuredRecipes.length]);
 
     const navigateSlide = (direction) => {
         setIsAutoPlaying(false);
-        setCurrentSlide((prev) => {
-            if (direction === 'next') {
-                return (prev + 1) % featuredRecipes.length;
-            } else {
-                return prev === 0 ? featuredRecipes.length - 1 : prev - 1;
-            }
+        setCurrentSlide(prev => {
+            if (direction === 'next') return (prev + 1) % featuredRecipes.length;
+            return prev === 0 ? featuredRecipes.length - 1 : prev - 1;
         });
     };
 
-    if (!featuredRecipes.length) {
-        return (
-            <section className="bg-gradient-to-b from-gray-50 to-white">
-                <div className="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
-                    <div>
-                        <div className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-white">
-                            🍳 Your cooking community
-                        </div>
-                        <h1 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
-                            Discover delicious recipes
-                        </h1>
-                        <p className="mt-4 text-gray-600">
-                            Explore community-made recipes and blogs from passionate cooks around the world.
-                        </p>
-                        <div className="mt-6 flex gap-3">
-                            <Link to="/recipes" className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-full hover:bg-primary-dark transition">
-                                Browse Recipes
-                            </Link>
-                            <Link to="/blogs" className="inline-flex items-center px-6 py-3 border rounded-full hover:bg-gray-50 transition">
-                                Read Blogs
-                            </Link>
-                        </div>
-                    </div>
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="relative h-72 md:h-[22rem]"
-                    >
-                        <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-xl border bg-gray-100">
-                            <img 
-                                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop" 
-                                alt="Food" 
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                        <div className="absolute -z-10 -bottom-6 -right-6 h-32 w-32 rounded-2xl bg-gray-200" />
-                    </motion.div>
-                </div>
-            </section>
-        );
-    }
+    if (!featuredRecipes.length) return null; // Nothing to display
+
+    const currentRecipe = featuredRecipes[currentSlide];
 
     return (
-        <section className="relative h-[600px] overflow-hidden bg-gray-900">
+        <section className="relative w-full h-[600px] overflow-hidden">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={currentSlide}
@@ -81,57 +40,90 @@ export default function Hero({ featuredRecipes = [] }) {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                 >
-                    <div className="relative h-full">
+                    <div className="relative w-full h-full">
                         {/* Background Image */}
-                        <div className="absolute inset-0">
-                            <img
-                                src={featuredRecipes[currentSlide].image}
-                                alt={featuredRecipes[currentSlide].title}
-                                className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-50" />
-                        </div>
+                        <img
+                            src={currentRecipe.image}
+                            alt={currentRecipe.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => e.target.src = "https://placehold.co/1200x600/a3a3a3/ffffff?text=Image+Not+Found"}
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-50" />
 
                         {/* Content */}
-                        <div className="relative h-full container mx-auto px-4 flex items-center">
-                            <div className="max-w-2xl text-white">
-                                <motion.span
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="inline-block px-4 py-1 rounded-full bg-white/20 text-sm mb-4"
-                                >
-                                    Featured Recipe
-                                </motion.span>
-                                <motion.h1
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-4xl md:text-6xl font-bold mb-6"
-                                >
-                                    {featuredRecipes[currentSlide].title}
-                                </motion.h1>
-                                <motion.p
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-lg md:text-xl mb-8 text-gray-200"
-                                >
-                                    {featuredRecipes[currentSlide].description}
-                                </motion.p>
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="flex gap-4"
-                                >
-                                    <Link
-                                        to={`/recipes/${featuredRecipes[currentSlide].id}`}
-                                        className="px-6 py-3 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors flex items-center gap-2"
-                                    >
-                                        View Recipe <BsArrowRight />
-                                    </Link>
-                                </motion.div>
+                        <div className="absolute inset-0 flex items-center justify-center p-4 w-[95%] h-[90%]">
+                            <div className="relative w-full max-w-7xl h-[99%] bg-gradient-to-br from-[#e7fafe] to-white backdrop-blur-lg rounded-3xl p-6 md:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between">
+                                {/* Left side */}
+                                <div className="md:w-1/2 text-gray-900 pr-0 md:pr-12">
+                                    <div className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800/70 text-gray-100 font-semibold shadow-md border border-gray-700/50 hover:bg-gray-700/80 transition-all duration-300">
+                                        <LuChefHat className="w-5 h-5 md:w-6 md:h-6 text-gray-100" />
+                                        {currentRecipe.tag || "Recipe"}
+                                    </div>
+                                    <h1 className="text-4xl md:text-4xl font-bold mb-4 leading-tight">
+                                        {currentRecipe.title}
+                                    </h1>
+                                    {/* Description with word limit */}
+                                    <p className="text-sm md:text-base mb-6">
+                                        {(() => {
+                                            const words = currentRecipe.description?.split(' ') ?? [];
+                                            const limit = 10;
+                                            if (words.length > limit) {
+                                                return (
+                                                    <>
+                                                        {words.slice(0, limit).join(' ')}...
+                                                        <Link
+                                                            to={`/recipes/${currentRecipe.id}`}
+                                                            className="text-primary ml-1 font-semibold hover:underline"
+                                                        >
+                                                            Read more
+                                                        </Link>
+                                                    </>
+                                                );
+                                            } else {
+                                                return currentRecipe.description || "No description available.";
+                                            }
+                                        })()}
+                                    </p>
+                                    <div className="flex gap-4 items-center mb-6">
+                                        <span className="inline-flex items-center px-4 py-2 bg-gray-800/70 text-gray-100 rounded-full text-sm font-medium border border-gray-700/10 shadow-lg">
+                                            <LuClock className="text-gray-100 mr-1" />
+                                            {currentRecipe.prep_time || "30 minutes"}
+                                        </span>
+                                        <span className="inline-flex items-center px-4 py-2 bg-gray-800/70 text-gray-100 rounded-full text-sm font-medium border border-gray-700/50 shadow-sm">
+                                            {currentRecipe.category || "Unknown Category"}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <FaUserCircle className="w-10 h-10 text-gray-500" />
+                                            <div>
+                                                <p className="font-semibold text-sm">{currentRecipe.author_name || "Unknown Author"}</p>
+                                                <p className="text-gray-500 text-xs">
+                                                    {currentRecipe.created_at ? new Date(currentRecipe.created_at).toLocaleDateString() : ""}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Link
+                                            to={`/recipes/${currentRecipe.id}`}
+                                            className="group px-6 py-3 bg-black text-white rounded-full flex items-center gap-2 font-medium
+                                                        transition-all duration-300 hover:bg-gray-800 hover:scale-105 hover:shadow-lg"
+                                        >
+                                            View Recipe
+                                            <BsArrowRight className="text-lg transition-transform duration-300 group-hover:translate-x-1" />
+                                        </Link>
+                                    </div>
+                                </div>
+
+                                {/* Right side image */}
+                                <div className="relative md:w-1/2 h-full hidden md:block mt-6 md:mt-0">
+                                    <img
+                                        src={currentRecipe.image}
+                                        alt={currentRecipe.title}
+                                        className="w-full h-full object-cover rounded-3xl"
+                                        onError={(e) => e.target.src = "https://placehold.co/1200x600/a3a3a3/ffffff?text=Image+Not+Found"}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -142,18 +134,17 @@ export default function Hero({ featuredRecipes = [] }) {
             <div className="absolute bottom-1/2 left-4 right-4 flex justify-between transform translate-y-1/2">
                 <button
                     onClick={() => navigateSlide('prev')}
-                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    className="text-white text-7xl md:text-8xl font-light transition-transform duration-300 hover:scale-125"
                 >
-                    <BsArrowLeft className="text-white text-2xl" />
+                    {"<"}
                 </button>
                 <button
                     onClick={() => navigateSlide('next')}
-                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    className="text-white text-7xl md:text-8xl font-light transition-transform duration-300 hover:scale-125"
                 >
-                    <BsArrowRight className="text-white text-2xl" />
+                    {">"}
                 </button>
             </div>
-
             {/* Slide Indicators */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
                 {featuredRecipes.map((_, index) => (
@@ -163,15 +154,10 @@ export default function Hero({ featuredRecipes = [] }) {
                             setIsAutoPlaying(false);
                             setCurrentSlide(index);
                         }}
-                        className={`h-2 rounded-full transition-all ${
-                            currentSlide === index ? 'w-8 bg-primary' : 'w-2 bg-white/50'
-                        }`}
+                        className={`h-2 rounded-full transition-all ${currentSlide === index ? 'w-8 bg-primary' : 'w-2 bg-white/50'}`}
                     />
                 ))}
             </div>
         </section>
     );
 }
-
-
-

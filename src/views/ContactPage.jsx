@@ -1,242 +1,256 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { sendContactMessage } from '../api/interactions'
+import { listUsers } from '../api/interactions'
+import Newsletter from '../components/Newsletter'
 
 export default function ContactPage() {
-	const [sender_name, setName] = useState('')
-	const [sender_email, setEmail] = useState('')
-	const [message, setMessage] = useState('')
-	const [recipient, setRecipient] = useState('')
-	const [info, setInfo] = useState('')
+    const [sender_name, setName] = useState('')
+    const [sender_email, setEmail] = useState('')
+    const [message, setMessage] = useState('')
+    const [recipient, setRecipient] = useState('')
+    const [users, setUsers] = useState([])
+    const [info, setInfo] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [showDropdown, setShowDropdown] = useState(false)
 
-	async function handleSubmit(e) {
-		e.preventDefault()
-		setInfo('')
-		try {
-			await sendContactMessage({ sender_name, sender_email, message, recipient })
-			setInfo('Message sent!')
-			setName(''); setEmail(''); setMessage('')
-		} catch (e) {
-			setInfo('Failed to send message')
-		}
-	}
+    useEffect(() => {
+        listUsers().then(setUsers).catch(() => { })
+    }, [])
 
-	return (
-  <>
-    {/* Hero Section */}
-    <div className="relative bg-gradient-to-r from-gray-300 to-gray-400 text-white py-24 text-center overflow-hidden">
-      <div className="absolute inset-0 bg-black opacity-5"></div>
-      <div className="relative z-10">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch With Us</h1>
-        <p className="mt-3 text-lg opacity-90 max-w-2xl mx-auto">
-          We'd love to hear from you. Our team is always ready to assist with any questions you might have.
-        </p>
-        
-        {/* Decorative elements */}
-        <div className="flex justify-center mt-8 space-x-6">
-          <div className="bg-white bg-opacity-20 p-3 rounded-full">
-            <i className="fas fa-envelope text-xl"></i>
-          </div>
-          <div className="bg-white bg-opacity-20 p-3 rounded-full">
-            <i className="fas fa-phone-alt text-xl"></i>
-          </div>
-          <div className="bg-white bg-opacity-20 p-3 rounded-full">
-            <i className="fas fa-map-marker-alt text-xl"></i>
-          </div>
-        </div>
-      </div>
-    </div>
+    const filteredUsers = users.filter(user =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
 
-    {/* Main Content */}
-    <section className="max-w-6xl mx-auto px-6 py-16 -mt-10 relative z-10">
-      <div className="grid md:grid-cols-3 gap-10">
-        
-        {/* Left Side - Contact Details + Image */}
-        <div className="space-y-8">
-          <div className="p-8 shadow-xl border rounded-2xl space-y-6 bg-white transition-all duration-300 hover:shadow-2xl">
-            <h3 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center">
-              <i className="fas fa-info-circle mr-2 text-gray-600"></i>
-              Get in Touch
-            </h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <div className="text-gray-600 text-xl mr-4 w-6 text-center">
-                  📍
+    const selectedUser = users.find(user => user.id === recipient)
+
+    async function handleSubmit(e) {
+        e.preventDefault()
+        setInfo('')
+        setLoading(true)
+
+        try {
+            await sendContactMessage({ sender_name, sender_email, message, recipient })
+            setInfo('Message sent successfully!')
+            setName('')
+            setEmail('')
+            setMessage('')
+            setRecipient('')
+            setSearchTerm('')
+        } catch (e) {
+            setInfo('Failed to send message. Please try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const selectUser = (user) => {
+        setRecipient(user.id)
+        setSearchTerm(user.name)
+        setShowDropdown(false)
+    }
+
+    return (
+        <>
+            <div className="min-h-screen bg-gray-50 py-12">
+                <div className="max-w-2xl mx-auto px-4">
+                    {/* Header */}
+                    <div className="text-center mb-12">
+                        <h1 className="text-4xl font-bold text-gray-900 mb-4">Send a Message</h1>
+                        <p className="text-lg text-gray-600">Connect with other users by sending them a message</p>
+                    </div>
+
+                    {/* Main Form Card */}
+                    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                        {/* Success/Error Message */}
+                        {info && (
+                            <div className={`mb-6 p-4 rounded-xl border ${info.includes('successfully')
+                                    ? 'bg-green-50 border-green-200 text-green-800'
+                                    : 'bg-red-50 border-red-200 text-red-800'
+                                }`}>
+                                <div className="flex items-center">
+                                    {info.includes('successfully') ? (
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    )}
+                                    {info}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-6">
+                            {/* Sender Information */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Your Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                                        placeholder="Enter your full name"
+                                        value={sender_name}
+                                        onChange={e => setName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Your Email <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="email"
+                                        className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                                        placeholder="your.email@example.com"
+                                        value={sender_email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Recipient Selection with Modern Search */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Send to <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <div
+                                        className={`w-full border rounded-xl px-4 py-3 cursor-pointer transition-all duration-200 bg-white shadow-sm hover:shadow-md ${showDropdown ? 'border-indigo-500 ring-2 ring-indigo-500' : 'border-gray-300'
+                                            }`}
+                                        onClick={() => setShowDropdown(!showDropdown)}
+                                    >
+                                        {selectedUser ? (
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                                                    <span className="text-white font-semibold text-sm">
+                                                        {selectedUser.name.charAt(0).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-gray-900">{selectedUser.name}</div>
+                                                    <div className="text-sm text-gray-500">{selectedUser.email}</div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-gray-500 flex items-center">
+                                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Select a recipient...
+                                            </div>
+                                        )}
+                                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                                            <svg className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    {showDropdown && (
+                                        <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                                            {/* Search Input */}
+                                            <div className="p-3 border-b border-gray-100">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search users..."
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                    value={searchTerm}
+                                                    onChange={e => setSearchTerm(e.target.value)}
+                                                    onClick={e => e.stopPropagation()}
+                                                />
+                                            </div>
+
+                                            {/* User List */}
+                                            <div className="max-h-48 overflow-y-auto">
+                                                {filteredUsers.length === 0 ? (
+                                                    <div className="p-4 text-gray-500 text-center">
+                                                        {searchTerm ? 'No users found' : 'No users available'}
+                                                    </div>
+                                                ) : (
+                                                    filteredUsers.map(user => (
+                                                        <div
+                                                            key={user.id}
+                                                            className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors duration-150"
+                                                            onClick={() => selectUser(user)}
+                                                        >
+                                                            <div className="flex items-center space-x-3">
+                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                                                                    <span className="text-white font-semibold text-sm">
+                                                                        {user.name.charAt(0).toUpperCase()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="font-medium text-gray-900">{user.name}</div>
+                                                                    <div className="text-sm text-gray-500">{user.email}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Message */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Message <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
+                                    rows="6"
+                                    placeholder="Write your message here..."
+                                    value={message}
+                                    onChange={e => setMessage(e.target.value)}
+                                    maxLength={1000}
+                                    required
+                                />
+                                <div className="text-xs text-gray-500 mt-1 text-right">{message.length}/1000</div>
+                            </div>
+
+                            {/* Submit Button */}
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading || !recipient}
+                                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                            >
+                                {loading ? (
+                                    <div className="flex items-center justify-center">
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Sending Message...
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center">
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                        Send Message
+                                    </div>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="mt-8 text-center">
+                        <p className="text-gray-600">
+                            {users.length} active users available to message
+                        </p>
+                    </div>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-700">Address</p>
-                  <p className="text-gray-600">123 Foodie Street, Dhaka</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="text-gray-600 text-xl mr-4 w-6 text-center">
-                  📞
-                </div>
-                <div>
-                  <p className="font-medium text-gray-700">Phone</p>
-                  <p className="text-gray-600">+880 1234 567890</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="text-gray-600 text-xl mr-4 w-6 text-center">
-                  ✉️
-                </div>
-                <div>
-                  <p className="font-medium text-gray-700">Email</p>
-                  <p className="text-gray-600">support@akjilanitheleader.com</p>
-                </div>
-              </div>
             </div>
-            
-            <div className="pt-4">
-              <h4 className="font-medium text-gray-700 mb-2">Business Hours</h4>
-              <p className="text-gray-600">Monday - Friday: 9am - 10pm</p>
-              <p className="text-gray-600">Saturday - Sunday: 10am - 11pm</p>
-            </div>
-          </div>
-
-          {/* Image in bottom left column */}
-          <div className="overflow-hidden rounded-2xl shadow-xl border border-gray-200">
-            <img 
-              src="/images/chef.jpg"
-              alt="Our restaurant interior" 
-              className="w-full h-81 object-cover"
-            />
-          </div>
-        </div>
-
-        {/* Right Side - Contact Form */}
-        <div className="md:col-span-2">
-          <div className="p-10 shadow-2xl border rounded-2xl bg-white">
-            <div className="text-center mb-8">
-              <h3 className="text-3xl font-semibold text-gray-800">Send us a message</h3>
-              <p className="text-gray-600 mt-2">Fill out the form below and we'll get back to you as soon as possible</p>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name */}
-              <div className="relative">
-                <input
-                  id="name"
-                  type="text"
-                  className="peer w-full border-2 border-gray-200 rounded-xl px-5 pt-7 pb-3 focus:border-gray-600 focus:outline-none focus:ring-0 transition-all duration-300 hover:shadow-[0_0_15px_rgba(100,100,100,0.1)] focus:shadow-[0_0_20px_rgba(100,100,100,0.15)]"
-                  placeholder=" "
-                  value={sender_name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-                <label
-                  htmlFor="name"
-                  className="absolute left-5 top-5 text-gray-500 font-medium transition-all duration-300 pointer-events-none peer-focus:top-2 peer-focus:text-sm peer-focus:text-gray-600 peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-sm"
-                >
-                  Your Full Name
-                </label>
-                <div className="absolute right-4 top-4 text-gray-500">
-                  <i className="fas fa-user"></i>
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="relative">
-                <input
-                  id="email"
-                  type="email"
-                  className="peer w-full border-2 border-gray-200 rounded-xl px-5 pt-7 pb-3 focus:border-gray-600 focus:outline-none focus:ring-0 transition-all duration-300 hover:shadow-[0_0_15px_rgba(100,100,100,0.1)] focus:shadow-[0_0_20px_rgba(100,100,100,0.15)]"
-                  placeholder=" "
-                  value={sender_email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <label
-                  htmlFor="email"
-                  className="absolute left-5 top-5 text-gray-500 font-medium transition-all duration-300 pointer-events-none peer-focus:top-2 peer-focus:text-sm peer-focus:text-gray-600 peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-sm"
-                >
-                  Your Email Address
-                </label>
-                <div className="absolute right-4 top-4 text-gray-500">
-                  <i className="fas fa-envelope"></i>
-                </div>
-              </div>
-
-              {/* Recipient */}
-              <div className="relative">
-                <input
-                  id="recipient"
-                  type="text"
-                  className="peer w-full border-2 border-gray-200 rounded-xl px-5 pt-7 pb-3 focus:border-gray-600 focus:outline-none focus:ring-0 transition-all duration-300 hover:shadow-[0_0_15px_rgba(100,100,100,0.1)] focus:shadow-[0_0_20px_rgba(100,100,100,0.15)]"
-                  placeholder=" "
-                  value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
-                />
-                <label
-                  htmlFor="recipient"
-                  className="absolute left-5 top-5 text-gray-500 font-medium transition-all duration-300 pointer-events-none peer-focus:top-2 peer-focus:text-sm peer-focus:text-gray-600 peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-sm"
-                >
-                  Recipient User ID (Optional)
-                </label>
-                <div className="absolute right-4 top-4 text-gray-500">
-                  <i className="fas fa-at"></i>
-                </div>
-              </div>
-
-              {/* Message */}
-              <div className="relative">
-                <textarea
-                  id="message"
-                  rows="5"
-                  className="peer w-full border-2 border-gray-200 rounded-xl px-5 pt-7 pb-3 focus:border-gray-600 focus:outline-none focus:ring-0 transition-all duration-300 resize-none hover:shadow-[0_0_15px_rgba(100,100,100,0.1)] focus:shadow-[0_0_20px_rgba(100,100,100,0.15)]"
-                  placeholder=" "
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  required
-                ></textarea>
-                <label
-                  htmlFor="message"
-                  className="absolute left-5 top-5 text-gray-200 font-medium transition-all duration-300 pointer-events-none peer-focus:top-2 peer-focus:text-sm peer-focus:text-gray-400 peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-sm"
-                >
-                  Your Message
-                </label>
-                <div className="absolute right-4 top-4 text-gray-500">
-                  <i className="fas fa-comment"></i>
-                </div>
-              </div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] focus:scale-[1.02] hover:shadow-[0_0_20px_rgba(100,100,100,0.2)] focus:shadow-[0_0_25px_rgba(100,100,100,0.25)] focus:outline-none"
-              >
-                Send Message
-                <i className="fas fa-paper-plane ml-2"></i>
-              </button>
-
-              {info && (
-                <div className={`p-3 rounded-lg text-center ${info.includes('Failed') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                  {info}
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* Full Width Map Below Contact Form */}
-    <div className="w-full px-0 mt-8">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.509079823479!2d90.412518!3d23.810331!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7b8b49b2a05%3A0xabcd1234abcd5678!2sDhaka!5e0!3m2!1sen!2sbd!4v1693123456789"
-        width="100%"
-        height="450"
-        style={{ border: 0 }}
-        allowFullScreen=""
-        loading="lazy"
-        className="w-full"
-      ></iframe>
-    </div>
-  </>
-);
+            <Newsletter />
+        </>
+    )
 }
-
-

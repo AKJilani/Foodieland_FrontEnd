@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { loginUser } from '../../api/auth'
+import { Link } from 'react-router-dom'
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('')
@@ -12,7 +13,6 @@ export default function LoginPage() {
 		setError('')
 		setLoading(true)
 		try {
-			// Validate input
 			if (!email || !password) {
 				setError('Both email and password are required')
 				setLoading(false)
@@ -23,15 +23,12 @@ export default function LoginPage() {
 			window.location.href = '/'
 		} catch (err) {
 			console.error('Login error:', err?.response?.data)
-			
-			// Get the most specific error message
-			const errorMessage = 
-				err?.response?.data?.email?.[0] || // Email verification errors
-				err?.response?.data?.password?.[0] || // Password-specific errors
-				err?.response?.data?.non_field_errors?.[0] || // General errors
-				err?.response?.data?.detail || // API error details
-				'Login failed. Please try again.' // Fallback message
-			
+			const errorMessage =
+				err?.response?.data?.email?.[0] ||
+				err?.response?.data?.password?.[0] ||
+				err?.response?.data?.non_field_errors?.[0] ||
+				err?.response?.data?.detail ||
+				'Login failed. Please try again.'
 			setError(errorMessage)
 		} finally {
 			setLoading(false)
@@ -44,23 +41,23 @@ export default function LoginPage() {
 				<h2 className="text-2xl font-semibold mb-6">Login</h2>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
-						<input 
-							type="email" 
+						<input
+							type="email"
 							className={`w-full border ${error?.includes('email') ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
-							placeholder="Email" 
-							value={email} 
-							onChange={e=>setEmail(e.target.value)} 
-							required 
+							placeholder="Email"
+							value={email}
+							onChange={e => setEmail(e.target.value)}
+							required
 						/>
 					</div>
 					<div>
-						<input 
-							type="password" 
+						<input
+							type="password"
 							className={`w-full border ${error?.includes('password') ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
-							placeholder="Password" 
-							value={password} 
-							onChange={e=>setPassword(e.target.value)} 
-							required 
+							placeholder="Password"
+							value={password}
+							onChange={e => setPassword(e.target.value)}
+							required
 						/>
 					</div>
 					{error && (
@@ -68,12 +65,19 @@ export default function LoginPage() {
 							<p className="text-red-600 text-sm">{error}</p>
 						</div>
 					)}
-					<button 
-						disabled={loading} 
+					<button
+						disabled={loading}
 						className={`w-full py-2 rounded ${loading ? 'bg-gray-400' : 'bg-gray-900'} text-white`}
 					>
 						{loading ? 'Logging in...' : 'Login'}
 					</button>
+
+					{/* Forgot Password link */}
+					<div className="mt-2 text-right">
+						<Link to="/forgot-password" className="text-blue-600 hover:underline text-sm">
+							Forgot Password?
+						</Link>
+					</div>
 				</form>
 			</div>
 		</>
