@@ -4,7 +4,7 @@ export default function InstagramStrip() {
 		'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=400',
 		'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=400',
 		'https://images.unsplash.com/photo-1432139555190-58524dae6a55?q=80&w=400',
-		'https://images.unsplash.com/photo-1526312426976-593c6cfd36ce?q=80&w=400'
+		'https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?q=80&w=400',
 	]
 	return (
 		<section>
@@ -21,5 +21,3 @@ export default function InstagramStrip() {
 		</section>
 	)
 }
-
-
