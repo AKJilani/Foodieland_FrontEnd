@@ -17,7 +17,7 @@ export default function RecipeFormPage({ mode }) {
     fat: '',
     fiber: '',
   })
-  const [image, setImage] = useState('')
+  const [imageFile, setImageFile] = useState(null)
   const [ingredients, setIngredients] = useState('')
   const [steps, setSteps] = useState('')
   const [category, setCategory] = useState('')
@@ -37,7 +37,6 @@ export default function RecipeFormPage({ mode }) {
           fat: '',
           fiber: ''
         })
-        setImage(r.image || '')
         setIngredients(Array.isArray(r.ingredients) ? r.ingredients.join('\n') : '')
         setSteps(Array.isArray(r.preparation_steps) ? r.preparation_steps.join('\n') : '')
         setCategory(r.category || '')
@@ -47,20 +46,23 @@ export default function RecipeFormPage({ mode }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const payload = {
-      title,
-      description,
-      nutrition_info: nutritionInfo,
-      image,
-      ingredients: ingredients.split('\n').filter(Boolean),
-      preparation_steps: steps.split('\n').filter(Boolean),
-      category: category || null,
+    const formData = new FormData()
+    formData.append("title", title)
+    formData.append("description", description)
+    formData.append("nutrition_info", JSON.stringify(nutritionInfo))
+    formData.append("category", category || "")
+    formData.append("ingredients", JSON.stringify(ingredients.split('\n').filter(Boolean)))
+    formData.append("preparation_steps", JSON.stringify(steps.split('\n').filter(Boolean)))
+
+    if (imageFile) {
+      formData.append("image", imageFile)
     }
+
     if (isEdit) {
-      await updateRecipe(id, payload)
+      await updateRecipe(id, formData, true)
       navigate(`/recipes/${id}`)
     } else {
-      const r = await createRecipe(payload)
+      const r = await createRecipe(formData, true)
       navigate(`/recipes/${r.id}`)
     }
   }
@@ -79,17 +81,6 @@ export default function RecipeFormPage({ mode }) {
           {isEdit ? 'Edit Recipe' : 'Add Recipe'}
         </h2>
 
-        {/* Image preview */}
-        {image && (
-          <div className="mb-4">
-            <img
-              src={image}
-              alt="Preview"
-              className="w-full h-48 object-cover rounded-lg border"
-            />
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <input
@@ -102,11 +93,14 @@ export default function RecipeFormPage({ mode }) {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Recipe Image
+            </label>
             <input
+              type="file"
+              accept="image/*"
               className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-              placeholder="Image URL"
-              value={image}
-              onChange={e => setImage(e.target.value)}
+              onChange={e => setImageFile(e.target.files[0])}
             />
           </div>
 
@@ -171,7 +165,7 @@ export default function RecipeFormPage({ mode }) {
               Ingredients (one per line)
             </label>
             <textarea
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
               rows="5"
               value={ingredients}
               onChange={e => setIngredients(e.target.value)}
@@ -183,7 +177,7 @@ export default function RecipeFormPage({ mode }) {
               Steps (one per line)
             </label>
             <textarea
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
               rows="5"
               value={steps}
               onChange={e => setSteps(e.target.value)}

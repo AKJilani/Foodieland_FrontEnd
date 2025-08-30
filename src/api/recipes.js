@@ -16,14 +16,16 @@ export async function getRecipe(id) {
 	return data
 }
 
-export async function createRecipe(payload) {
-	const { data } = await api.post('/recipes/', payload)
-	return data
+export async function createRecipe(data, isMultipart=false) {
+  const headers = isMultipart ? { 'Content-Type': 'multipart/form-data' } : {}
+  const res = await api.post('recipes/', data, { headers })
+  return res.data
 }
 
-export async function updateRecipe(id, payload) {
-	const { data } = await api.patch(`/recipes/${id}/`, payload)
-	return data
+export async function updateRecipe(id, data, isMultipart=false) {
+  const headers = isMultipart ? { 'Content-Type': 'multipart/form-data' } : {}
+  const res = await api.put(`recipes/${id}/`, data, { headers })
+  return res.data
 }
 
 export async function deleteRecipe(id) {
@@ -60,5 +62,3 @@ export async function removeFavorite(id) {
 	await api.delete(`/recipes/my/favorites/${id}/`)
 	return { ok: true }
 }
-
-
