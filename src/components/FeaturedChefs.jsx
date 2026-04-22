@@ -6,15 +6,15 @@ import AlAminImg from '../assets/Al Amin.jpg';
 
 export default function FeaturedChefs() {
 	const chefs = [
-		{ name: 'A.K.Jilani', role: 'Chef', img: JilaniImg },
-		{ name: 'Zareer', role: 'Baker', img: ZareerImg },
-		{ name: 'Faiyaz', role: 'Food Blogger', img: FaiyazImg },
-		{ name: 'Shafayet', role: 'Food Reviewer', img: ShafayetImg },
-		{ name: 'Al Amin', role: 'Recipe Expert', img: AlAminImg },
+		{ name: 'Abdul Kader Jilani', role: 'Team Leader', img: JilaniImg },
+		{ name: 'Khandakar Zareer', role: 'Team Member', img: ZareerImg },
+		{ name: 'Faiyaz Mahmud Toha', role: 'Team Member', img: FaiyazImg },
+		{ name: 'Shafayet Salehin', role: 'Team Member', img: ShafayetImg },
+		{ name: 'Al Amin', role: 'Team Member', img: AlAminImg },
 	]
 	return (
 		<section className="max-w-6xl mx-auto px-4 py-12">
-			<h2 className="text-xl font-semibold mb-6">Featured Chefs</h2>
+			<h2 className="text-xl font-semibold mb-6">The Chefs Behind the Code of FOODIELAND</h2>
 			<div className="grid grid-cols-2 md:grid-cols-5 gap-6">
 				{chefs.map((c, i) => (
 					<div key={i} className="border rounded-xl bg-white p-4 text-center">
