@@ -1,11 +1,14 @@
 import React from "react";
 
 export default function CategoryCard({ id, name, icon, color = "#f8fafc" }) {
-  // Use a fallback URL since import.meta.env isn't supported in all environments
-  const API_BASE = "http://localhost:8000";
-
-  // Construct full image URL
-  const imageSrc = icon ? `${API_BASE}/media/${icon}` : undefined;
+  // Function to determine the correct image source based on the icon value
+  const getImageSrc = (icon) => {
+    if (!icon) return undefined;
+    if (icon.startsWith('http')) return icon;
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    return `${API_BASE}/media/${icon}`;
+  };
+  const imageSrc = getImageSrc(icon);
 
   // Function to convert hex to a more usable rgba for the gradient
   const hexToRgba = (hex, alpha) => {
@@ -15,7 +18,7 @@ export default function CategoryCard({ id, name, icon, color = "#f8fafc" }) {
       r = parseInt(hex[1] + hex[1], 16);
       g = parseInt(hex[2] + hex[2], 16);
       b = parseInt(hex[3] + hex[3], 16);
-    } 
+    }
     // Handle 6-digit hex
     else if (hex.length === 7) {
       r = parseInt(hex.slice(1, 3), 16);
@@ -40,10 +43,10 @@ export default function CategoryCard({ id, name, icon, color = "#f8fafc" }) {
     if (!hex || hex === '#ffffffff') {
       return `linear-gradient(to top, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0) 70%)`;
     }
-    
+
     // A gradient that starts with the full hex color and fades to transparent
     const rgbaColor0 = hexToRgba(hex, 0);
-    
+
     // The gradient will start with the adjusted color, then fade to a semi-transparent version,
     // and finally become fully transparent at the top.
     return `linear-gradient(to top, ${startColor} 0%, ${rgbaColor0} 70%)`;
