@@ -1,10 +1,16 @@
+import JilaniImg from '../assets/Jilani.jpg';
+import ZareerImg from '../assets/Zareer.jpg';
+import FaiyazImg from '../assets/Faiyaz.jpg';
+import ShafayetImg from '../assets/Shafayet.jpg';
+import AlAminImg from '../assets/Al Amin.jpg';
+
 export default function FeaturedChefs() {
 	const chefs = [
-		{ name: 'A.K.Jilani', role: 'Chef', img: 'src/assets/Jilani.jpg' },
-		{ name: 'Zareer', role: 'Baker', img: 'src/assets/Zareer.jpg' },
-		{ name: 'Faiyaz', role: 'Food Blogger', img: 'src/assets/Faiyaz.jpg' },
-		{ name: 'Shafayet', role: 'Food Reviewer', img: 'src/assets/Shafayet.jpg' },
-		{ name: 'Al Amin', role: 'Recipe Expert', img: 'src/assets/Al Amin.jpg' },
+		{ name: 'A.K.Jilani', role: 'Chef', img: JilaniImg },
+		{ name: 'Zareer', role: 'Baker', img: ZareerImg },
+		{ name: 'Faiyaz', role: 'Food Blogger', img: FaiyazImg },
+		{ name: 'Shafayet', role: 'Food Reviewer', img: ShafayetImg },
+		{ name: 'Al Amin', role: 'Recipe Expert', img: AlAminImg },
 	]
 	return (
 		<section className="max-w-6xl mx-auto px-4 py-12">
